@@ -10,7 +10,7 @@
     },
     "prayer-times-render": {
       "type": "http",
-      "url": "https://your-app-name.onrender.com/mcp/"
+      "url": "https://prayer-times-public-mcp.onrender.com/mcp/"      
     }
   }
 }

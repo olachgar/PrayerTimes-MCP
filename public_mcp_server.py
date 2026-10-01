@@ -31,6 +31,7 @@ async def fetch_prayer_times(
     timings = data.get("timings", {})
     meta = data.get("meta", {})
     return {
+        "source": "render",
         "city": city,
         "country": country,
         "date": data.get("date", {}).get("readable") or date or "today",
@@ -40,7 +41,7 @@ async def fetch_prayer_times(
             "latitude": meta.get("latitude"),
             "longitude": meta.get("longitude"),
             "method": method,
-            "source": payload.get("status") or "aladhan",
+            "provider_status": payload.get("status") or "aladhan",
         },
     }
 

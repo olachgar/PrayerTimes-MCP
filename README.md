@@ -127,12 +127,17 @@ The project contains a ready config file at `.vscode/mcp.json` with both local a
 
 This lets you keep both servers available at the same time.
 
+Each tool response includes a `source` field so you can tell exactly which server answered:
+
+- `"source": "local"` for the local MCP server
+- `"source": "render"` for the Render deployment
+
 Use explicit prompts such as:
 
 - “Use the prayer-times-local MCP tool to get prayer times for Casablanca, Morocco”
 - “Use the prayer-times-render MCP tool to get Dhuhr for Paris, France”
 
-This is the safest way to know which server is responding, because the server name is explicit in the tool call.
+This is the safest way to know which server is responding, because the server name is explicit in the tool call and the payload itself is marked.
 
 ## MCP tool contract
 
