@@ -102,17 +102,78 @@ Optional parameters:
 get_prayer_times(city="Paris", country="France", method=2, date="2026-10-01")
 ```
 
+## Public MCP deployment on Render
+
+For a public MCP that anyone can use, the project now includes a Render-ready HTTP server: `public_mcp_server.py`.
+
+This version is designed for hosted public access, not the local stdio server.
+
+### Public server entrypoints
+
+- `/mcp` — MCP streamable HTTP endpoint
+- `/sse` — SSE endpoint for compatible clients
+- `/health` — health check
+- `/` — basic service info
+
+### Render configuration
+
+The repository includes a `render.yaml` file:
+
+```yaml
+services:
+  - type: web
+    name: prayer-times-public-mcp
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+```
+
+### Render deployment steps
+
+1. Push the repo to GitHub
+2. Create a new Render Web Service
+3. Connect the GitHub repository
+4. Choose the repo and service type: Web Service
+5. Use the default Python runtime
+6. Set the start command to:
+
+```bash
+uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
+```
+
+7. Deploy the service
+
+After deployment, your public MCP base URL will look like:
+
+```text
+https://your-render-app.onrender.com/mcp
+```
+
+### Public MCP client config
+
+A public MCP client should use the URL-based connection, not the local stdio command. Example:
+
+```json
+{
+  "mcpServers": {
+    "prayer-times": {
+      "url": "https://your-render-app.onrender.com/mcp"
+    }
+  }
+}
+```
+
+### Local and public usage
+
+- Local AI tools: use `prayer_times_mcp_server.py` with stdio
+- Public AI clients: use `public_mcp_server.py` with HTTP endpoint on Render
+
 ## Deployment notes
 
-This app is ready to be deployed to a free cloud platform such as Render or Railway after local validation.
-
-Typical production steps:
-
-1. Add environment variables if needed
-2. Run the app on `0.0.0.0` and expose the internal port
-3. Choose a provider that supports Python/FastAPI services
-4. Keep using the same app entrypoint: `app.main:app`
+Render is the simplest free hosting path for a basic public MCP service. It avoids the trial-based pricing model of Railway and keeps the deployment straightforward for a Python/FastAPI service.
 
 ## Notes
 
-The service relies on the public Aladhan API for prayer time data. It is intended as a light local prototype and can be extended with more tools and a more formal MCP server configuration later.
+The service relies on the public Aladhan API for prayer time data. The project is intended as a lightweight public MCP prototype and can be extended with additional prayer-related tools or richer metadata later.
