@@ -3,14 +3,12 @@
     "prayer-times-local": {
       "type": "stdio",
       "command": "/home/olachgar/Projects/MCPs/PrayerTimes/.venv/bin/python",
-      "args": [
-        "/home/olachgar/Projects/MCPs/PrayerTimes/prayer_times_mcp_server.py"
-      ],
+      "args": ["/home/olachgar/Projects/MCPs/PrayerTimes/prayer_times_mcp_server.py"],
       "cwd": "/home/olachgar/Projects/MCPs/PrayerTimes"
     },
     "prayer-times-render": {
       "type": "http",
-      "url": "https://prayer-times-public-mcp.onrender.com/mcp/"      
+      "url": "https://prayer-times-public-mcp.onrender.com/mcp/"
     }
   }
 }

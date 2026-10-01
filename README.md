@@ -112,32 +112,27 @@ The project contains a ready config file at `.vscode/mcp.json` with both local a
     "prayer-times-local": {
       "type": "stdio",
       "command": "/home/olachgar/Projects/MCPs/PrayerTimes/.venv/bin/python",
-      "args": [
-        "/home/olachgar/Projects/MCPs/PrayerTimes/prayer_times_mcp_server.py"
-      ],
+      "args": ["/home/olachgar/Projects/MCPs/PrayerTimes/prayer_times_mcp_server.py"],
       "cwd": "/home/olachgar/Projects/MCPs/PrayerTimes"
     },
     "prayer-times-render": {
       "type": "http",
-      "url": "https://your-app-name.onrender.com/mcp/"
+      "url": "https://prayer-times-public-mcp.onrender.com/mcp/"
     }
   }
 }
 ```
 
-This lets you keep both servers available at the same time.
+This repo is already wired to a live public MCP endpoint, so anyone checking it can try the remote server immediately without modifying the URL.
 
-Each tool response includes a `source` field so you can tell exactly which server answered:
+Keep both entries. The local one is for your machine; the Render one is for the public server.
 
-- `"source": "local"` for the local MCP server
-- `"source": "render"` for the Render deployment
+Each response includes a `source` field:
 
-Use explicit prompts such as:
+- `"source": "local"`
+- `"source": "render"`
 
-- “Use the prayer-times-local MCP tool to get prayer times for Casablanca, Morocco”
-- “Use the prayer-times-render MCP tool to get Dhuhr for Paris, France”
-
-This is the safest way to know which server is responding, because the server name is explicit in the tool call and the payload itself is marked.
+Use the tool name explicitly in the prompt to keep it clear.
 
 ## MCP tool contract
 
@@ -206,7 +201,7 @@ uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
 ### Render URL shape
 
 ```text
-https://your-app-name.onrender.com/mcp/
+https://prayer-times-public-mcp.onrender.com/mcp/
 ```
 
 ### Example public MCP client config
@@ -215,7 +210,7 @@ https://your-app-name.onrender.com/mcp/
 {
   "mcpServers": {
     "prayer-times": {
-      "url": "https://your-app-name.onrender.com/mcp/"
+      "url": "https://prayer-times-public-mcp.onrender.com/mcp/"
     }
   }
 }
