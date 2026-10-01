@@ -102,29 +102,37 @@ python prayer_times_mcp_server.py
 
 This starts the tool in stdio mode for local AI clients.
 
-## VS Code / Copilot local MCP config
+## VS Code / Copilot local and remote MCP config
 
-The project contains a ready config file at `.vscode/mcp.json`:
+The project contains a ready config file at `.vscode/mcp.json` with both local and Render entries enabled:
 
 ```json
 {
   "servers": {
-    "prayer-times": {
+    "prayer-times-local": {
       "type": "stdio",
       "command": "/home/olachgar/Projects/MCPs/PrayerTimes/.venv/bin/python",
       "args": [
         "/home/olachgar/Projects/MCPs/PrayerTimes/prayer_times_mcp_server.py"
       ],
       "cwd": "/home/olachgar/Projects/MCPs/PrayerTimes"
+    },
+    "prayer-times-render": {
+      "type": "http",
+      "url": "https://your-app-name.onrender.com/mcp/"
     }
   }
 }
 ```
 
-After reloading VS Code / Copilot, you can ask the assistant to call the MCP tool, for example:
+This lets you keep both servers available at the same time.
 
-- “Use the prayer-times MCP tool to get prayer times for Casablanca, Morocco”
-- “Get the Dhuhr time for Paris, France”
+Use explicit prompts such as:
+
+- “Use the prayer-times-local MCP tool to get prayer times for Casablanca, Morocco”
+- “Use the prayer-times-render MCP tool to get Dhuhr for Paris, France”
+
+This is the safest way to know which server is responding, because the server name is explicit in the tool call.
 
 ## MCP tool contract
 

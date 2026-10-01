@@ -7,7 +7,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 from starlette.responses import JSONResponse
 
-mcp = FastMCP("prayer_times_public", streamable_http_path="/mcp/")
+mcp = FastMCP("prayer_times_render", streamable_http_path="/mcp/")
 
 
 async def fetch_prayer_times(
@@ -46,13 +46,24 @@ async def fetch_prayer_times(
 
 
 @mcp.tool()
+async def get_prayer_times_render(
+    city: str,
+    country: str,
+    method: Optional[int] = None,
+    date: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Fetch prayer times for a city and country from the public Aladhan API. This tool is served by the Render deployment."""
+    return await fetch_prayer_times(city=city, country=country, method=method, date=date)
+
+
+@mcp.tool()
 async def get_prayer_times(
     city: str,
     country: str,
     method: Optional[int] = None,
     date: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Fetch prayer times for a city and country from the public Aladhan API."""
+    """Backward-compatible alias for the Render deployment instance."""
     return await fetch_prayer_times(city=city, country=country, method=method, date=date)
 
 
