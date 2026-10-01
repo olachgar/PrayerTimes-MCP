@@ -1,28 +1,80 @@
 # PrayerTimes MCP
 
-This project provides a local FastAPI API and a real MCP server for fetching prayer times from the public Aladhan API.
+A production-ready local and public MCP for fetching prayer times from the Aladhan API.
 
-## What is included
+## Overview
 
-- FastAPI application with Swagger docs
-- Local REST endpoints for health and prayer times
-- Real MCP tool named `get_prayer_times`
-- VS Code / Copilot compatible config for local MCP integration
-- Ready-to-use local testing flow before cloud deployment
+This project is designed with a clean two-layer architecture:
+
+- Local MCP: for IDEs like VS Code / Copilot
+- Public MCP: for remote AI clients over HTTP, hosted on Render
+- FastAPI REST API: for local testing and debugging
+
+This gives you a professional setup for both local development and public deployment.
+
+## Architecture
+
+### 1) Local development MCP
+
+File: `prayer_times_mcp_server.py`
+
+Purpose:
+- local tool exposure for a machine running an AI assistant
+- uses stdio transport
+- ideal for VS Code / Copilot / local MCP clients
+
+### 2) Public Render MCP
+
+File: `public_mcp_server.py`
+
+Purpose:
+- internet-facing MCP server
+- uses streamable HTTP / SSE transport
+- ready for deployment on Render
+
+### 3) REST API
+
+File: `app/main.py`
+
+Purpose:
+- human-readable HTTP endpoints
+- local testing and debugging
+- easy health checks and manual API consumption
+
+## Features
+
+- FastAPI app with Swagger docs
+- Prayer time retrieval from Aladhan
+- Local stdio MCP server
+- Public HTTP MCP server for deployment
+- Render-ready config
+- Health checks and simple API validation
 
 ## Project structure
 
-- `app/main.py` — FastAPI app
-- `app/client.py` — external API client
-- `app/config.py` — app settings
-- `app/schemas.py` — request/response models
-- `prayer_times_mcp_server.py` — MCP server exposing the prayer-times tool
-- `.vscode/mcp.json` — local MCP server config for VS Code
-- `requirements.txt` — Python dependencies
+```text
+PrayerTimes-MCP/
+├── app/
+│   ├── __init__.py
+│   ├── client.py
+│   ├── config.py
+│   ├── main.py
+│   └── schemas.py
+├── .vscode/
+│   └── mcp.json
+├── .env.example
+├── .gitignore
+├── prayer_times_mcp_server.py
+├── public_mcp_server.py
+├── render.yaml
+├── requirements.txt
+├── README.md
+└── .venv/
+```
 
-## Local FastAPI API
+## Local setup
 
-### Install dependencies
+### 1) Create and activate the virtual environment
 
 ```bash
 python -m venv .venv
@@ -30,43 +82,29 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Run the API
+### 2) Run the FastAPI REST API locally
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-Then open:
+Endpoints:
 
-- http://localhost:8001/docs
 - http://localhost:8001/health
+- http://localhost:8001/docs
 - http://localhost:8001/prayer-times?city=Casablanca&country=Morocco
 
-### Example REST call
+### 3) Run the local MCP server
 
 ```bash
-curl -X GET "http://localhost:8001/prayer-times?city=Casablanca&country=Morocco"
-```
-
-## Local MCP server
-
-The real MCP server is in `prayer_times_mcp_server.py`.
-
-It exposes a tool called `get_prayer_times`.
-
-### Run the MCP server
-
-```bash
-cd /home/olachgar/Projects/MCPs/PrayerTimes
-source .venv/bin/activate
 python prayer_times_mcp_server.py
 ```
 
-This runs in stdio mode, which is the correct setup for local AI clients such as VS Code / Copilot.
+This starts the tool in stdio mode for local AI clients.
 
-## VS Code / Copilot integration
+## VS Code / Copilot local MCP config
 
-The repository includes a ready-to-use config file at `.vscode/mcp.json`:
+The project contains a ready config file at `.vscode/mcp.json`:
 
 ```json
 {
@@ -83,41 +121,94 @@ The repository includes a ready-to-use config file at `.vscode/mcp.json`:
 }
 ```
 
-After reloading VS Code / Copilot, you can ask the assistant to call the `prayer-times` MCP tool, for example:
+After reloading VS Code / Copilot, you can ask the assistant to call the MCP tool, for example:
 
 - “Use the prayer-times MCP tool to get prayer times for Casablanca, Morocco”
 - “Get the Dhuhr time for Paris, France”
 
-## Example tool call
+## MCP tool contract
 
-The tool can be called with:
+The local MCP tool is named:
+
+```python
+get_prayer_times(city: str, country: str, method: int | None = None, date: str | None = None)
+```
+
+Example:
 
 ```python
 get_prayer_times(city="Casablanca", country="Morocco")
 ```
 
-Optional parameters:
+## Public MCP server for Render
 
-```python
-get_prayer_times(city="Paris", country="France", method=2, date="2026-10-01")
-```
+The public server is in `public_mcp_server.py`.
 
-## Public MCP deployment on Render
+It exposes HTTP endpoints:
 
-For a public MCP that anyone can use, the project now includes a Render-ready HTTP server: `public_mcp_server.py`.
-
-This version is designed for hosted public access, not the local stdio server.
-
-### Public server entrypoints
-
-- `/mcp` — MCP streamable HTTP endpoint
+- `/mcp` — public MCP endpoint
 - `/sse` — SSE endpoint for compatible clients
 - `/health` — health check
-- `/` — basic service info
+- `/` — info route
 
-### Render configuration
+### Public server startup command
 
-The repository includes a `render.yaml` file:
+```bash
+uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
+```
+
+This is the command Render should use.
+
+## Render deployment checklist
+
+Follow these steps to deploy the public MCP to Render.
+
+### Checklist
+
+1. Push this repository to GitHub.
+2. Sign in to Render.
+3. Click New + → Web Service.
+4. Connect the GitHub repository `olachgar/PrayerTimes-MCP`.
+5. Keep the repository branch as `main`.
+6. Use the default Python environment.
+7. Set the build command:
+
+```bash
+pip install -r requirements.txt
+```
+
+8. Set the start command:
+
+```bash
+uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
+```
+
+9. Pick the free plan.
+10. Click Create Web Service.
+11. Wait for startup and check the health endpoint.
+12. Confirm the public MCP URL is reachable.
+
+### Render URL shape
+
+```text
+https://your-app-name.onrender.com/mcp/
+```
+
+### Example public MCP client config
+
+```json
+{
+  "mcpServers": {
+    "prayer-times": {
+      "url": "https://your-app-name.onrender.com/mcp/"
+    }
+  }
+}
+```
+
+## Render config file
+
+The repo includes a ready `render.yaml`:
 
 ```yaml
 services:
@@ -130,50 +221,20 @@ services:
     autoDeploy: true
 ```
 
-### Render deployment steps
+## Production recommendation
 
-1. Push the repo to GitHub
-2. Create a new Render Web Service
-3. Connect the GitHub repository
-4. Choose the repo and service type: Web Service
-5. Use the default Python runtime
-6. Set the start command to:
+For a production-ready setup:
 
-```bash
-uvicorn public_mcp_server:app --host 0.0.0.0 --port $PORT
-```
+- Use `prayer_times_mcp_server.py` for local machine assistants
+- Use `public_mcp_server.py` for remote/public AI clients
+- Deploy the public version on Render
+- Keep the REST API for debugging and manual validation
 
-7. Deploy the service
-
-After deployment, your public MCP base URL will look like:
-
-```text
-https://your-render-app.onrender.com/mcp
-```
-
-### Public MCP client config
-
-A public MCP client should use the URL-based connection, not the local stdio command. Example:
-
-```json
-{
-  "mcpServers": {
-    "prayer-times": {
-      "url": "https://your-render-app.onrender.com/mcp"
-    }
-  }
-}
-```
-
-### Local and public usage
-
-- Local AI tools: use `prayer_times_mcp_server.py` with stdio
-- Public AI clients: use `public_mcp_server.py` with HTTP endpoint on Render
-
-## Deployment notes
-
-Render is the simplest free hosting path for a basic public MCP service. It avoids the trial-based pricing model of Railway and keeps the deployment straightforward for a Python/FastAPI service.
+This is the cleanest architecture for a public MCP service while retaining local developer ergonomics.
 
 ## Notes
 
-The service relies on the public Aladhan API for prayer time data. The project is intended as a lightweight public MCP prototype and can be extended with additional prayer-related tools or richer metadata later.
+- The project relies on the public Aladhan API for prayer time data.
+- Local stdio MCP is intended for local AI client usage.
+- Public HTTP MCP is intended for remote/public deployment.
+- No GitHub Actions are required for Render deployment — Render can deploy directly from GitHub.

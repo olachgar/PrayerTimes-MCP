@@ -4,10 +4,10 @@ import os
 from typing import Any, Dict, Optional
 
 import httpx
-from fastapi import FastAPI
 from mcp.server.fastmcp import FastMCP
+from starlette.responses import JSONResponse
 
-mcp = FastMCP("prayer_times_public")
+mcp = FastMCP("prayer_times_public", streamable_http_path="/mcp/")
 
 
 async def fetch_prayer_times(
@@ -56,26 +56,25 @@ async def get_prayer_times(
     return await fetch_prayer_times(city=city, country=country, method=method, date=date)
 
 
-app = FastAPI(title="PrayerTimes Public MCP", version="1.0.0")
-app.mount("/mcp", mcp.streamable_http_app())
-app.mount("/sse", mcp.sse_app(mount_path="/sse"))
+async def root(request):
+    return JSONResponse(
+        {
+            "message": "PrayerTimes public MCP server is running.",
+            "endpoints": {
+                "mcp": "/mcp",
+                "health": "/health",
+            },
+        }
+    )
 
 
-@app.get("/")
-async def root() -> Dict[str, str]:
-    return {
-        "message": "PrayerTimes public MCP server is running.",
-        "endpoints": {
-            "mcp": "/mcp",
-            "sse": "/sse",
-            "health": "/health",
-        },
-    }
+async def health(request):
+    return JSONResponse({"status": "ok", "service": "PrayerTimes Public MCP"})
 
 
-@app.get("/health")
-async def health() -> Dict[str, str]:
-    return {"status": "ok", "service": "PrayerTimes Public MCP"}
+app = mcp.streamable_http_app()
+app.add_route("/", root, methods=["GET"])
+app.add_route("/health", health, methods=["GET"])
 
 
 if __name__ == "__main__":
