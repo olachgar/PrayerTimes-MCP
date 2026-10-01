@@ -163,6 +163,8 @@ This is the command Render should use.
 
 Follow these steps to deploy the public MCP to Render.
 
+Important: the repository is pinned to Python 3.12 because the default Render Python 3.14 build was failing during installation of the older `pydantic-core` stack. The repo includes `.python-version` and `runtime.txt` to enforce Python 3.12.
+
 ### Checklist
 
 1. Push this repository to GitHub.
@@ -170,7 +172,7 @@ Follow these steps to deploy the public MCP to Render.
 3. Click New + → Web Service.
 4. Connect the GitHub repository `olachgar/PrayerTimes-MCP`.
 5. Keep the repository branch as `main`.
-6. Use the default Python environment.
+6. In Render, set the Python version to 3.12 if the UI offers a version selector. If not, the included `.python-version` and `runtime.txt` files should pin the build to Python 3.12.
 7. Set the build command:
 
 ```bash
